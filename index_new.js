@@ -121,7 +121,7 @@ function initScene(){
 function initRoom(x,y){
     // Ground
     let ground = new THREE.PlaneGeometry((x*25),(y*25))
-    let ground_texture = TEXTURE_LOADER.load('./texture/testTile.png')
+    let ground_texture = TEXTURE_LOADER.load('./texture/ground/ground_test.png')
     ground_texture.wrapS = THREE.RepeatWrapping
     ground_texture.wrapT = THREE.RepeatWrapping
     ground_texture.repeat.set(x,y)
@@ -139,7 +139,7 @@ function initRoom(x,y){
         L = kiri
     */
     let wall_r = new THREE.PlaneGeometry(x*25,100)
-    let wall_r_texture = TEXTURE_LOADER.load('./texture/testWall.png')
+    let wall_r_texture = TEXTURE_LOADER.load('./texture/wall/wall_test.png')
     wall_r_texture.wrapS = THREE.RepeatWrapping
     wall_r_texture.wrapT = THREE.RepeatWrapping
     wall_r_texture.repeat.set(x,1)
@@ -152,7 +152,7 @@ function initRoom(x,y){
     SCENE.add(wall_r_mesh)
 
     let wall_l = new THREE.PlaneGeometry(y*25,100)
-    let wall_l_texture = TEXTURE_LOADER.load('./texture/testWall.png')
+    let wall_l_texture = TEXTURE_LOADER.load('./texture/wall/wall_test.png')
     wall_l_texture.wrapS = THREE.RepeatWrapping
     wall_l_texture.wrapT = THREE.RepeatWrapping
     wall_l_texture.repeat.set(y,1)
