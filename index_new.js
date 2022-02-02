@@ -32,6 +32,9 @@ const RENDERER = new THREE.WebGLRenderer({
 });
 const CAMERA_CONTROL = new MapControls(CAMERA, RENDERER.domElement)
 const RAYCAST = new THREE.Raycaster()
+let PLAYER_MOVE
+let PLAYER
+let dif = {}
 
 var time, delta, moveTimer = 0;
 var useDeltaTiming = true, weirdTiming = 0;
@@ -64,7 +67,7 @@ function init() {
     initCamera()
     initScene()
     initRoom(8,8)
-    // initPlayer()
+    initPlayer()
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -79,13 +82,14 @@ function initManager() {
     };
     MANAGER.onLoad = function () {
         // Only allow control once content is fully loaded
-        CANVAS_HOLDER.addEventListener('click', function () {
-            CONTROLS.lock();
-        }, false);
+        // CANVAS_HOLDER.addEventListener('click', function () {
+        //     CONTROLS.lock();
+        // }, false);
 
         console.log('Loading complete!');
         document.getElementById('progress').hidden = true;
     };
+    document.getElementById('progress').hidden = true;
 }
 
 function initRenderer(){
@@ -100,14 +104,14 @@ function initCamera(){
     CAMERA.rotation.y = - Math.PI / 4;
     CAMERA.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
 
-    CAMERA_CONTROL.maxDistance = 600;
-    CAMERA_CONTROL.minDistance = 150;
+    // CAMERA_CONTROL.minZoom = 1000;
+    // CAMERA_CONTROL.maxZoom = 100;
     CAMERA_CONTROL.enableDamping = false;
 
 }
 
 function initScene(){
-    RAYCAST.layers.set(1)
+    // RAYCAST.layers.set(1)
         
     // ThirdPersonCamControl = new MapControls(ThirdPersonCam, RENDERER.domElement)
 
@@ -132,6 +136,7 @@ function initRoom(x,y){
     const ground_mesh = new THREE.Mesh(ground,ground_material)
     ground_mesh.position.set((x*25)/2,0,(y*25)/2)
     ground_mesh.rotation.x = -Math.PI / 2
+    // ground_mesh.layers.set(1)
     SCENE.add(ground_mesh)
 
     /* Wall
@@ -167,81 +172,58 @@ function initRoom(x,y){
 
     // grid helper
     let gridHelper = new THREE.GridHelper( (x*25), x );
-    gridHelper.position.set((x*25)/2,0,(y*25)/2)
+    gridHelper.position.set((x*25)/2,0,(y*25)/2);
     SCENE.add(gridHelper)
 
 }
 
 function initPlayer(){
-    PLAYER.position.fromArray([0, 25, 0]);
+    let player_box = new THREE.BoxGeometry(25,50,25)
+    let player_material = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        wireframe: true
+    })
+    const player_mesh = new THREE.Mesh(player_box, player_material)
+    PLAYER = player_mesh
+
+    PLAYER.position.set(137.5,25,12.5);
     PLAYER.speedMultiplier = 1
     SCENE.add(PLAYER);
 
-    document.addEventListener('keydown', function (event) {
-        switch (event.code) {
-            case "ArrowUp":
-            case "KeyW":
-                PLAYER_MOVE[DIR.FORWARD] = true;
-                break;
-            case "ArrowLeft":
-            case "KeyA":
-                PLAYER_MOVE[DIR.LEFT] = true;
-                break;
-            case "ArrowDown":
-            case "KeyS":
-                PLAYER_MOVE[DIR.BACKWARD] = true;
-                break;
-            case "ArrowRight":
-            case "KeyD":
-                PLAYER_MOVE[DIR.RIGHT] = true;
-                break;
-            case "KeyE":
-            case "PageUp":
-            case "Space":
-                PLAYER_MOVE[DIR.UP] = true;
-                break;
-            case "KeyQ":
-            case "PageDown":
-                PLAYER_MOVE[DIR.DOWN] = true;
-                break;
-            case "ShiftLeft":
-                PLAYER_MOVE[DIR.SPRINT] = true;
-                break;
-        }
-    }, false);
+    document.addEventListener("click", function(event){
+    /* which = 1 itu click kiri */
+    /* which = 2 itu scroll click */
+    /* which = 3 itu click kanan */
+        if(event.which == 1){
+            let mouse = {}
+            let w = window.innerWidth
+            let h = window.innerHeight
+            mouse.x = event.clientX/w *2 -1
+            mouse.y = event.clientY/h *(-2) + 1
+        
+            RAYCAST.setFromCamera(mouse,CAMERA)
+            console.log(mouse)
+            let items = RAYCAST.intersectObjects(SCENE.children,false)
+            console.log(items)
+            items.forEach(i=>{
+                let newPoint = {}
+                newPoint.x = Math.round(Math.round(i.point.x/25)*25)
+                newPoint.y = Math.round(Math.round(i.point.y/25)*25)
+                newPoint.z = Math.round(Math.round(i.point.z/25)*25)
 
-    document.addEventListener('keyup', function (event) {
-        switch (event.code) {
-            case "ArrowUp":
-            case "KeyW":
-                PLAYER_MOVE[DIR.FORWARD] = false;
-                break;
-            case "ArrowLeft":
-            case "KeyA":
-                PLAYER_MOVE[DIR.LEFT] = false;
-                break;
-            case "ArrowDown":
-            case "KeyS":
-                PLAYER_MOVE[DIR.BACKWARD] = false;
-                break;
-            case "ArrowRight":
-            case "KeyD":
-                PLAYER_MOVE[DIR.RIGHT] = false;
-                break;
-            case "KeyE":
-            case "PageUp":
-            case "Space":
-                PLAYER_MOVE[DIR.UP] = false;
-                break;
-            case "KeyQ":
-            case "PageDown":
-                PLAYER_MOVE[DIR.DOWN] = false;
-                break;
-            case "ShiftLeft":
-                PLAYER_MOVE[DIR.SPRINT] = false;
-                break;
+                dif.x = newPoint.x - PLAYER.position.x - 12.5
+                dif.y = newPoint.y - PLAYER.position.y
+                dif.z = newPoint.z - PLAYER.position.z - 12.5
+                let maxdif = Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))
+    
+                if(maxdif != 0 ){
+                    PLAYER_MOVE = true
+                }
+    
+                console.log(PLAYER.position)
+            })
         }
-    }, false);
+    })
 }
 
 function gameLoop() {
@@ -264,33 +246,11 @@ function gameLoop() {
         }
     
         // Process player input
-        // if (CONTROLS.isLocked) {
-        //     // Sprinting
-        //     let moveSpd;
-        //     if (PLAYER_MOVE[DIR.SPRINT]) {
-        //         moveSpd = SPEED_SPRINT * PLAYER.speedMultiplier;
-        //     } else {
-        //         moveSpd = SPEED_NORMAL * PLAYER.speedMultiplier;
-        //     }
-    
-        //     // Move forwards/backwards
-        //     let dolly = PLAYER_MOVE[DIR.BACKWARD] - PLAYER_MOVE[DIR.FORWARD];
-        //     if (dolly !== 0) {
-        //         PLAYER.translateZ(dolly * moveSpd * delta);
-        //     }
-    
-        //     // Move left/right
-        //     let strafe = PLAYER_MOVE[DIR.RIGHT] - PLAYER_MOVE[DIR.LEFT];
-        //     if (strafe !== 0) {
-        //         PLAYER.translateX(strafe * moveSpd * delta);
-        //     }
-    
-        //     // Move up/down
-        //     let heave = PLAYER_MOVE[DIR.UP] - PLAYER_MOVE[DIR.DOWN];
-        //     if (heave !== 0) {
-        //         PLAYER.position.y += (heave * moveSpd * delta);
-        //     }
-        // }
+        if (PLAYER_MOVE) {
+            PLAYER.translateX(dif.x)
+            PLAYER.translateZ(dif.z)
+            PLAYER_MOVE = false
+        }
     
         // Broadcast movement to other players n times per second
         // moveTimer += delta;
