@@ -210,14 +210,20 @@ function initPlayer(){
                 newPoint.x = Math.round(Math.round(i.point.x/25)*25)
                 newPoint.y = Math.round(Math.round(i.point.y/25)*25)
                 newPoint.z = Math.round(Math.round(i.point.z/25)*25)
-
-                dif.x = newPoint.x - PLAYER.position.x - 12.5
-                dif.y = newPoint.y - PLAYER.position.y
-                dif.z = newPoint.z - PLAYER.position.z - 12.5
+                
+                if(newPoint.x>=12.5){
+                    dif.x = newPoint.x - PLAYER.position.x - 12.5
+                } else dif.x = -PLAYER.position.x + 12.5
+                if(newPoint.y<0){
+                    dif.y = newPoint.y - PLAYER.position.y
+                } else dif.y = 0
+                if(newPoint.z>=12.5){
+                    dif.z = newPoint.z - PLAYER.position.z - 12.5
+                } else dif.z = -PLAYER.position.z +12.5
                 let maxdif = Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))
     
                 if(maxdif != 0 ){
-                    PLAYER_MOVE = true
+                    PLAYER_MOVE = maxdif
                 }
     
                 console.log(PLAYER.position)
@@ -246,10 +252,11 @@ function gameLoop() {
         }
     
         // Process player input
-        if (PLAYER_MOVE) {
-            PLAYER.translateX(dif.x)
-            PLAYER.translateZ(dif.z)
-            PLAYER_MOVE = false
+        if (PLAYER_MOVE >= delta) {
+            PLAYER.translateX(dif.x *delta)
+            PLAYER.translateZ(dif.z *delta)
+            PLAYER_MOVE -= Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))*delta
+            console.log(PLAYER_MOVE)
         }
     
         // Broadcast movement to other players n times per second
