@@ -14,34 +14,33 @@
             height: 100vh;
             overflow:hidden;
         }
-        canvas {
-            display: block;
+        #progress {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #333;
+            opacity: 0.5;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            margin-left: -100px;
+            margin-top: -10px;
         }
-        .ui {
-            position: absolute;
-        }
-
-        button{
-            margin: 20px;
-        }
-        .camera {
-            padding: 20px;
+        #progress-bar {
+            width: 200px;
+            width: 0%;
+            height: 20px;
+            background: white;
             border: none;
-            border-radius: 50%
         }
     </style>
 </head>
 <body>
-    <div style="width:100%;height:50px;text-align: center; color:white;" class="ui">Info header</div>
-    <button style="top:0" id="fire" class="ui">Fire</button>
-    <button style="bottom:0" id="spell" class="ui">Spell</button>
-    <button style="right:0" id="health" class="ui">Health</button>
-    <div style="right:0; bottom:0;" class="ui">
-        <button class="camera" id="cam-zoomout"></button>
-        <button class="camera" id="cam-reset"></button>
-        <button class="camera" id="cam-zoomin"></button>
-    </div>
-    <div class="container"></div>
+    <!-- HTML Page -->
+    <div id="progress"><div id="progress-bar"></div></div>
+    <div id='canvas-holder'></div>
+
+    <!-- Scripts -->
     <script src="./index.js" type="module"></script>
 </body>
 </html>

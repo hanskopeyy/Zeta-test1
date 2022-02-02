@@ -4,9 +4,86 @@ import {OrbitControls} from './three.js/examples/jsm/controls/OrbitControls.js'
 import {GLTFLoader} from './three.js/examples/jsm/loaders/GLTFLoader.js' 
 import {FontLoader} from './three.js/examples/jsm/loaders/FontLoader.js' 
 
+// Variables
+const MANAGER = new THREE.LoadingManager();
+const SCENE = new THREE.Scene();
+const CAMERA = new THREE.OrthographicCamera((-20*(window.innerWidth/window.innerHeight)), (20*(window.innerWidth/window.innerHeight)), 20, -20, -500,2000)
+const CONTAINER = document.getElementById('canvas-holder');
+
+function init() {
+    // Initiate Loading
+    initManager()
+
+    // Initiate the Room
+    initScene()
+}
+
+function initManager() {
+    MANAGER.onStart = function(managerUrl, itemsLoaded, itemsTotal) {
+        console.log('Started loading: ' + managerUrl + '\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+
+    MANAGER.onProgress = function(managerUrl, itemsLoaded, itemsTotal) {
+        document.getElementById('progress-bar').style.width = (itemsLoaded / itemsTotal * 100) + '%';
+        console.log('Loading file: ' + managerUrl + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+    MANAGER.onLoad = function () {
+        // Only allow control once content is fully loaded
+        CANVAS_HOLDER.addEventListener('click', function () {
+            CONTROLS.lock();
+        }, false);
+
+        console.log('Loading complete!');
+        document.getElementById('progress').hidden = true;
+    };
+}
+
+function initScene(){
+    ThirdPersonCam = CAMERA
+
+    renderer = new THREE.WebGLRenderer()
+    renderer.antialias = false
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0x303030)
+    renderer.shadowMap.enabled = true
+
+    groundFloor = createFloor()
+    groundFloor.layers.set(1)
+    grid = gridHelper()
+    box = createBox()
+
+    // Objects
+
+    objects = [
+        groundFloor,
+        box,
+        grid
+    ]
+        
+    objects.forEach(o => {
+        SCENE.add(o)
+    })
+    
+    setMax(225,0,225)
+
+    raycast = new THREE.Raycaster()
+    raycast.layers.set(1)
+    
+    ThirdPersonCam.position.set(20,20,20)
+    ThirdPersonCam.rotation.order = 'YXZ';
+    ThirdPersonCam.rotation.y = - Math.PI / 4;
+    ThirdPersonCam.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
+    
+    ThirdPersonCamControl = new MapControls(ThirdPersonCam, renderer.domElement)
+
+    ThirdPersonCamControl.maxDistance = 600;
+    ThirdPersonCamControl.minDistance = 150;
+    ThirdPersonCamControl.enableDamping = false;
+
+    CONTAINER.appendChild(renderer.domElement)
+}
 
 // ======== Initiate =========
-let scene
 let ThirdPersonCam
 let ThirdPersonCamControl
 let ActiveCam
@@ -27,17 +104,8 @@ let maxdif = 0
 let newPoint
 let movecounter = 0
 let movable
-let container = document.querySelector( '.container' );
 
 // ======= CREATE =============
-let createTPC = () => {
-    let fov = 45
-    let w = window.innerWidth
-    let h = window.innerHeight
-    let aspect =  w/h
-    
-    return new THREE.PerspectiveCamera(fov, aspect)  
-}
 let createFloor = () => {
     let geometry = new THREE.PlaneGeometry(250,250)
     let material = new THREE.MeshBasicMaterial({
@@ -69,51 +137,6 @@ let gridHelper = () => {
 }
 // ============ init =============
 
-let init = () => {
-    scene = new THREE.Scene()
-
-    ThirdPersonCam = createTPC()
-    ActiveCam = ThirdPersonCam
-
-    renderer = new THREE.WebGLRenderer()
-    renderer.antialias = false
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setClearColor(0x303030)
-    renderer.shadowMap.enabled = true
-
-    groundFloor = createFloor()
-    groundFloor.layers.set(1)
-    grid = gridHelper()
-    box = createBox()
-
-    // Objects
-
-    objects = [
-        groundFloor,
-        box,
-        grid
-    ]
-        
-    objects.forEach(o => {
-        scene.add(o)
-    })
-    
-    setMax(225,0,225)
-
-    raycast = new THREE.Raycaster()
-    raycast.layers.set(1)
-    
-    ThirdPersonCam.position.set(235,235,235)
-    
-    ThirdPersonCamControl = new MapControls(ThirdPersonCam, renderer.domElement)
-
-    ThirdPersonCamControl.maxDistance = 600;
-    ThirdPersonCamControl.minDistance = 150;
-    ThirdPersonCamControl.enableDamping = false;
-
-    container.appendChild(renderer.domElement)
-}
-
 window.onload = () => {
     init()
     tryMoveAnimate()
@@ -139,11 +162,11 @@ window.onresize = () => {
 
 let render = () => {
     requestAnimationFrame(render)
-    renderer.render(scene, ActiveCam)
+    renderer.render(SCENE, ThirdPersonCam)
 }
 
-container.addEventListener("keydown", onDocumentKeyDown);
-container.addEventListener("mouseup", onDocumentOnClick);
+CONTAINER.addEventListener("keydown", onDocumentKeyDown);
+CONTAINER.addEventListener("mouseup", onDocumentOnClick);
 
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
@@ -206,7 +229,7 @@ let tryMoveAnimate = () => {
             movable = null;
         }
     }
-renderer.render(scene, ActiveCam)
+renderer.render(SCENE, ThirdPersonCam)
 }
 
 
@@ -235,12 +258,17 @@ function checkNewLocation(x,y,z){
     return new THREE.Vector3(x,y,z)
 }
 
-var camera_reset = document.getElementById("cam-reset");
-camera_reset.addEventListener("click", camReset, false);
-
 function camReset(event){
-    ThirdPersonCam.position.set(box.position.x + 235, box.position.y + 210, box.position.z + 235)
-    ThirdPersonCam.lookAt(box)
-    ThirdPersonCamControl.update();
+    ThirdPersonCam.position.set(20,20,20)
+    // ThirdPersonCam.position.set(box.position.x + 235, box.position.y + 215, box.position.z + 235)
+    // ThirdPersonCam.rotation.order = 'YXZ';
+    // ThirdPersonCam.rotation.y = -Math.PI / 4;
+    // ThirdPersonCam.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
+    // ThirdPersonCam.lookAt(box)
+    ThirdPersonCamControl.maxDistance = 600;
+    ThirdPersonCamControl.minDistance = 150;
+    ThirdPersonCamControl.enableDamping = false;
+
+    ThirdPersonCamControl.position.set(20,20,20);
     // ThirdPersonCamControl.reset()
 }
