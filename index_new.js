@@ -26,7 +26,7 @@ const FONT_SIZE = 0.08;
 const CONTAINER = document.getElementById('canvas-holder');
 
 const SCENE = new THREE.Scene();
-const CAMERA = new THREE.OrthographicCamera((-20*(window.innerWidth/window.innerHeight)), (20*(window.innerWidth/window.innerHeight)), 20, -20, -500,2000)
+const CAMERA = new THREE.OrthographicCamera((-20*(window.innerWidth/window.innerHeight)), (20*(window.innerWidth/window.innerHeight)), 20, -20, 1,1000)
 const RENDERER = new THREE.WebGLRenderer({
     antialias: false,
 });
@@ -99,11 +99,11 @@ function initRenderer(){
 }
 
 function initCamera(){
-    CAMERA.position.set(20,20,20)
+    CAMERA.position.set(150,150,150)
     CAMERA.rotation.order = 'YXZ';
     CAMERA.rotation.y = - Math.PI / 4;
     CAMERA.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
-
+    
     // CAMERA_CONTROL.minZoom = 1000;
     // CAMERA_CONTROL.maxZoom = 100;
     CAMERA_CONTROL.enableDamping = false;
