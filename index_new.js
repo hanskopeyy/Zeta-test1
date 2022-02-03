@@ -26,7 +26,7 @@ const FONT_SIZE = 0.08;
 const CONTAINER = document.getElementById('canvas-holder');
 
 const SCENE = new THREE.Scene();
-const CAMERA = new THREE.OrthographicCamera((-20*(window.innerWidth/window.innerHeight)), (20*(window.innerWidth/window.innerHeight)), 20, -20, 1,1000)
+const CAMERA = new THREE.OrthographicCamera((-135*(window.innerWidth/window.innerHeight)), (135*(window.innerWidth/window.innerHeight)), 135, -135, 1,1000)
 const RENDERER = new THREE.WebGLRenderer({
     antialias: false,
 });
@@ -202,9 +202,9 @@ function initPlayer(){
             mouse.y = event.clientY/h *(-2) + 1
         
             RAYCAST.setFromCamera(mouse,CAMERA)
-            console.log(mouse)
+            console.log(CAMERA.zoom)
             let items = RAYCAST.intersectObjects(SCENE.children,false)
-            console.log(items)
+            // console.log(items)
             items.forEach(i=>{
                 let newPoint = {}
                 newPoint.x = Math.round(Math.round(i.point.x/25)*25)
@@ -226,7 +226,7 @@ function initPlayer(){
                     PLAYER_MOVE = maxdif
                 }
     
-                console.log(PLAYER.position)
+                // console.log(PLAYER.position)
             })
         }
     })
@@ -256,7 +256,7 @@ function gameLoop() {
             PLAYER.translateX(dif.x *delta)
             PLAYER.translateZ(dif.z *delta)
             PLAYER_MOVE -= Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))*delta
-            console.log(PLAYER_MOVE)
+            // console.log(PLAYER_MOVE)
         }
     
         // Broadcast movement to other players n times per second
