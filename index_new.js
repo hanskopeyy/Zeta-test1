@@ -296,3 +296,5 @@ function onWindowResize(){
     CAMERA.updateProjectionMatrix();
     RENDERER.setSize(window.innerWidth, window.innerHeight);
 }
+
+//test
