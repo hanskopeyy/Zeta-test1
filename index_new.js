@@ -3,9 +3,9 @@
 
     Coding Guide:
         Imports: Line 12
-        Constants: Line 19
-        Support Check: Line 48
-        Code init: Line 65
+        Constants: Line 18
+        Support Check: Line 44
+        Code init: Line 61
 */
 
 // Library Imports
@@ -103,11 +103,11 @@ function initCamera(){
     CAMERA.rotation.order = 'YXZ';
     CAMERA.rotation.y = - Math.PI / 4;
     CAMERA.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
-    
+
     // CAMERA_CONTROL.minZoom = 1000;
     // CAMERA_CONTROL.maxZoom = 100;
     CAMERA_CONTROL.enableDamping = false;
-
+    console.log(CAMERA_CONTROL.getDistance())
 }
 
 function initScene(){
@@ -222,6 +222,22 @@ function initPlayer(){
                 } else dif.z = -PLAYER.position.z +12.5
                 let maxdif = Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))
     
+                //rotate player
+/*               if(dif.x < 0){
+                    player_mesh.rotation.y = -Math.PI/2
+                    console.log("x-")
+                } else if(dif.x > 0){
+                    player_mesh.rotation.y = 0
+                    console.log("x+")
+                }
+                if(dif.z < 0){
+                    player_mesh.rotation.y = Math.PI
+                    console.log("z-")
+                } else if(dif.z > 0){
+                    player_mesh.rotation.y = Math.PI/2
+                    console.log("Z+")
+                }
+*/
                 if(maxdif != 0 ){
                     PLAYER_MOVE = maxdif
                 }
