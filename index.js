@@ -52,15 +52,37 @@ let createFloor = () => {
 }
 
 let createBox = () => {
-    let geometry = new THREE.BoxGeometry(25,50,25)
+    let geometry = new THREE.BoxGeometry(25,2,5)
     let material = new THREE.MeshBasicMaterial({
         color: 0x00ff00,
-        wireframe: true
     })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.set(0,25,0)
-    
-    return mesh
+    mesh.position.set(0,1,0)
+
+    const mesh2 = new THREE.Mesh(geometry, material)
+    mesh2.position.set(0,1,0)
+    mesh2.rotation.y = Math.PI/2
+    let geometry3 = new THREE.BoxGeometry(5,20,5)
+    const mesh3 = new THREE.Mesh(geometry3, material)
+    mesh3.position.set(0,10,0)
+    // const mesh3 = new THREE.Mesh(geometry, material)
+    // mesh3.position.set(-10,10,10)
+    // const mesh4 = new THREE.Mesh(geometry, material)
+    // mesh4.position.set(10,10,-10)
+
+    let geometry2 = new THREE.CylinderGeometry(25,25,5,25)
+
+    const mesh5 = new THREE.Mesh(geometry2,material)
+    mesh5.position.set(0,22.5,0)
+
+    let group = new THREE.Group()
+    group.add(mesh)
+    group.add(mesh2)
+    group.add(mesh3)
+    // group.add(mesh4)
+    group.add(mesh5)
+
+    return group
 }
 let gridHelper = () => {
     let gridHelper = new THREE.GridHelper( 250, 10 );
@@ -221,8 +243,8 @@ function checkNewLocation(x,y,z){
     } else if (x > maxX){
         x = maxX
     }
-    if(y < 25){
-        y = 25
+    if(y < 0){
+        y = 0
     } else if (y > maxY){
         y = maxY
     }

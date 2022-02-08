@@ -10,6 +10,7 @@
 
 // Library Imports
 import * as THREE from './three.js/build/three.module.js'
+import * as Rooms from './room/test_room.js';
 import { MapControls } from './three.js/examples/jsm/controls/OrbitControls.js';
 import { PointerLockControls} from './three.js/examples/jsm/controls/PointerLockControls.js';
 import {GLTFLoader} from './three.js/examples/jsm/loaders/GLTFLoader.js' 
@@ -66,7 +67,7 @@ function init() {
     initRenderer()
     initCamera()
     initScene()
-    initRoom(8,8)
+    initRoom(new Rooms.default)
     initPlayer()
     window.addEventListener('resize', onWindowResize, false);
 }
@@ -122,19 +123,19 @@ function initScene(){
     CONTAINER.appendChild(RENDERER.domElement)
 }
 
-function initRoom(x,y){
+function initRoom(Room){
     // Ground
-    let ground = new THREE.PlaneGeometry((x*25),(y*25))
-    let ground_texture = TEXTURE_LOADER.load('./texture/ground/ground_test.png')
+    let ground = new THREE.PlaneGeometry((Room.room.x*25),(Room.room.y*25))
+    let ground_texture = TEXTURE_LOADER.load('./texture/ground/'+Room.room.floor+'.png')
     ground_texture.wrapS = THREE.RepeatWrapping
     ground_texture.wrapT = THREE.RepeatWrapping
-    ground_texture.repeat.set(x,y)
+    ground_texture.repeat.set(Room.room.x,Room.room.y)
     let ground_material = new THREE.MeshBasicMaterial({
         map: ground_texture,
         side: THREE.DoubleSide
     })
     const ground_mesh = new THREE.Mesh(ground,ground_material)
-    ground_mesh.position.set((x*25)/2,0,(y*25)/2)
+    ground_mesh.position.set((Room.room.x*25)/2,0,(Room.room.y*25)/2)
     ground_mesh.rotation.x = -Math.PI / 2
     // ground_mesh.layers.set(1)
     SCENE.add(ground_mesh)
@@ -143,37 +144,43 @@ function initRoom(x,y){
         R = kanan
         L = kiri
     */
-    let wall_r = new THREE.PlaneGeometry(x*25,100)
-    let wall_r_texture = TEXTURE_LOADER.load('./texture/wall/wall_test.png')
+    let wall_r = new THREE.PlaneGeometry(Room.room.x*25,100)
+    let wall_r_texture = TEXTURE_LOADER.load('./texture/wall/'+Room.room.wall+'.png')
     wall_r_texture.wrapS = THREE.RepeatWrapping
     wall_r_texture.wrapT = THREE.RepeatWrapping
-    wall_r_texture.repeat.set(x,1)
+    wall_r_texture.repeat.set(Room.room.x,1)
     let wall_r_material = new THREE.MeshBasicMaterial({
         map: wall_r_texture,
         side: THREE.DoubleSide
     })
     const wall_r_mesh = new THREE.Mesh(wall_r, wall_r_material)
-    wall_r_mesh.position.set((x*25)/2,50,0)
+    wall_r_mesh.position.set((Room.room.x*25)/2,50,0)
     SCENE.add(wall_r_mesh)
 
-    let wall_l = new THREE.PlaneGeometry(y*25,100)
-    let wall_l_texture = TEXTURE_LOADER.load('./texture/wall/wall_test.png')
+    let wall_l = new THREE.PlaneGeometry(Room.room.y*25,100)
+    let wall_l_texture = TEXTURE_LOADER.load('./texture/wall/'+Room.room.wall+'.png')
     wall_l_texture.wrapS = THREE.RepeatWrapping
     wall_l_texture.wrapT = THREE.RepeatWrapping
-    wall_l_texture.repeat.set(y,1)
+    wall_l_texture.repeat.set(Room.room.y,1)
     let wall_l_material = new THREE.MeshBasicMaterial({
         map: wall_l_texture,
         side: THREE.DoubleSide
     })
     const wall_l_mesh = new THREE.Mesh(wall_l, wall_l_material)
-    wall_l_mesh.position.set(0,50,(y*25)/2)
+    wall_l_mesh.position.set(0,50,(Room.room.y*25)/2)
     wall_l_mesh.rotation.y = -Math.PI / 2
     SCENE.add(wall_l_mesh)
 
     // grid helper
-    let gridHelper = new THREE.GridHelper( (x*25), x );
-    gridHelper.position.set((x*25)/2,0,(y*25)/2);
+    let gridHelper = new THREE.GridHelper( (Room.room.x*25), Room.room.x );
+    gridHelper.position.set((Room.room.x*25)/2,0,(Room.room.y*25)/2);
     SCENE.add(gridHelper)
+
+    //objects
+    Room.objects.forEach(element => {
+        element.mesh.position.set(element.position_x*25,element.position_y,element.position_z*25)
+        SCENE.add(element.mesh)
+    });
 
 }
 
@@ -222,6 +229,7 @@ function initPlayer(){
                 } else dif.z = -PLAYER.position.z +12.5
                 let maxdif = Math.round(Math.max(Math.abs(dif.x), Math.abs(dif.y), Math.abs(dif.z)))
     
+
                 //rotate player
 /*               if(dif.x < 0){
                     player_mesh.rotation.y = -Math.PI/2
@@ -312,5 +320,3 @@ function onWindowResize(){
     CAMERA.updateProjectionMatrix();
     RENDERER.setSize(window.innerWidth, window.innerHeight);
 }
-
-//test
