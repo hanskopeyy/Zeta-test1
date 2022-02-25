@@ -14,9 +14,11 @@ class Default_Room
         this.objects = [
             {
                 mesh: new Desk().group,
-                position_x: 5,
+                position_x: 6,
                 position_y: 0,
-                position_z: 5
+                position_z: 6,
+                size_x: 2,
+                size_y: 2
             }
         ]
     }

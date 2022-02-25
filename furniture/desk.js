@@ -6,7 +6,7 @@ class Desk
 
         let geometry = new THREE.BoxGeometry(25,2,5)
         let material = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
+            color: 0x000000,
         })
         const mesh = new THREE.Mesh(geometry, material)
         mesh.position.set(0,1,0)
